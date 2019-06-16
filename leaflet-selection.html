@@ -1,0 +1,139 @@
+<link rel="import" href="leaflet-core.html">
+<!--
+Element which defines a maker  (<a href="http://leafletjs.com/reference.html#marker">Leaflet Reference</a>).
+
+##### Example
+
+    <leaflet-marker latitude="51.5" longitude="-0.10" title="Some title">
+        <b>Popup text</b>
+    </leaflet-marker>
+
+##### Example
+
+    <leaflet-icon id="myicon" iconurl="https://stendhalgame.org/images/mapmarker/me.png"></leaflet-icon>
+
+    <leaflet-marker latitude="51.5" longitude="-0.10" title="Some title" icon="myicon">
+    </leaflet-marker>
+
+@element leaflet-marker
+@blurb element which defines a marker. The content is used as popup window, unless it is empty.
+@demo https://leaflet-extras.github.io/leaflet-map/demo.html
+@homepage https://leaflet-extras.github.io/leaflet-map/
+-->
+<dom-module id="leaflet-selection">
+	<template>
+		<style>
+			:host {display: none;}
+		</style>
+		<h3>leaflet prova</h3>
+	</template>
+	<script>
+	'use strict';
+
+	// class LeafletProva extends leafletMap.Mixins.LeafletPopupContent(Polymer.Element) {
+	class LeafletSelection extends Polymer.Element {
+		static get is() {return 'leaflet-selection';}
+
+
+		static get properties() {
+			return {
+				selectedItems: {
+					type: Array,
+					value: () => [],
+					notify: true
+				},
+				container: {
+					type: Object,
+					observer: '_containerChanged'
+				},
+
+				feature: {
+					type: Object
+				},
+
+				observer_: {
+					type: Object
+				}
+			};
+		}
+		static get observers() {
+          return ['_selectedItemsObserver(selectedItems, selectedItems.*)'];
+		}
+		_selectedItemsObserver(selectedItems) {
+			console.log("in _selectedItemsObvserver", selectedItems)
+			this.hasValue = selectedItems && selectedItems.length > 0;
+        }
+
+		_selezionerChanged() {
+		}
+
+		_containerChanged() {
+			if (this.container) {
+
+			var editableLayers = new L.FeatureGroup();
+			var options = {
+				position: 'topright',
+				draw: {
+					polyline: false, // Turns off this drawing tool
+					marker: false, // Turns off this drawing tool
+				},
+				// edit: {
+				// 	featureGroup: editableLayers, //REQUIRED!!
+				// 	remove: true
+				// }
+			};
+
+			var feature = new L.Control.Draw(options);
+			// this.drawControl = drawControl 
+			this.feature = feature;
+			 this.feature.addTo(this.container);
+			console.log(this)
+			// this.parentElement.map.addControl(drawControl);
+			// this.container.addControl(drawControl);
+			this.container.on('draw:created', function (e) {
+				var type = e.layerType,
+				layer = e.layer;
+
+				if (type === 'circle') {
+					var theCenterPt = layer.getLatLng();
+					var theRadius = layer.getRadius();
+					this.selectedItems = [{radius: theRadius, center:theCenterPt}]
+					
+					// if(confirm("You've drawn a circle of radius " + Math.round(theRadius/100)/10 +
+					// 	  " km and with the center in ["+ theCenterPt.lat + ", " + theCenterPt.lng +"]. Do you want select the marers inside?" )){
+					// 	map.markers.map(function (marker) {
+					// 		console.log(theCenterPt, theCenterPt.distanceTo(marker.getLatLng()), marker.getLatLng(), theRadius)
+					// 		if (layer.getLatLng().distanceTo(marker.getLatLng()) > theRadius ) {
+					// 			var imagePath = "/frontend/map_components/leaflet/dist/images/marker-shadow.png";
+					// 			var IconStyleTwo = new L.Icon({
+					// 				iconUrl: imagePath
+					// 			});
+					// 			marker.setIcon(IconStyleTwo)
+					// 		}
+					// 	});
+					// }
+					// editableLayers.removeLayer(layer);
+				}
+				if (type === 'rectangle' || type === 'polygon') {
+					// this.dispatchEvent(new CustomEvent('handleClick'))
+					// var event = new CustomEvent('sonoqui', {bubbles: true, composed: true})
+					this.selectedItems = layer.getLatLngs();
+					// this.dispatchEvent(new CustomEvent('selected-items-changed'))
+					// this.dispatchEvent(new CustomEvent('sonoqui',  {data:2}))
+					// this.dispatchEvent(new CustomEvent('kick', {detail: {luca: 99999}}));
+					// this.$server.setData("foo");
+				}
+			}, this);
+			}
+		}
+
+		disconnectedCallback() {
+			if (this.container && this.feature) {
+				this.container.removeLayer(this.feature);
+			}
+		}
+	}
+	window.customElements.define(LeafletSelection.is, LeafletSelection);
+
+	</script>
+</dom-module>

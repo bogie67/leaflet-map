@@ -1,0 +1,71 @@
+<link rel="import" href="leaflet-core.html">
+
+<!--
+Marker clustering (<a href="https://github.com/Leaflet/Leaflet.markercluster/tree/leaflet-0.7">Reference</a>).
+
+##### Example
+
+    <leaflet-marker-cluster>
+        <leaflet-marker latitude="51.505" longitude="-0.09"> </leaflet-marker>
+    </leaflet-marker-clusterp>
+
+
+@element leaflet-marker-cluster
+@blurb an element which represents a marker cluster group
+@demo https://leaflet-extras.github.io/leaflet-map/demo.html
+@homepage https://leaflet-extras.github.io/leaflet-map/
+-->
+
+<dom-module id="leaflet-marker-cluster">
+  <template>
+    <slot></slot>
+  </template>
+</dom-module>
+
+<script>
+  "use strict";
+    class LeafletMarkerCluster extends Polymer.Element {
+		static get is() {return 'leaflet-marker-cluster';}
+		static get properties() {
+			return {
+        container: {
+          type: Object,
+          observer: '_containerChanged'
+        } 
+      }
+    }
+    _containerChanged() {
+      if (this.container) {
+        var feature = L.markerClusterGroup({ chunkedLoading: true, disableClusteringAtZoom: 20 });
+        this.feature = feature;
+        this.feature.addTo(this.container);
+        this.registerContainerOnChildren();
+        this.feature.on('clusterclick', function(e) { 
+          // debugger
+          console.log(e);
+          e.originalEvent.stopPropagation()
+          e.originalEvent.stopImmediatePropagation()
+        });
+      }
+    }
+    registerContainerOnChildren() {
+      for (var i = 0; i < this.children.length; i++) {
+        this.children[i].container = this.feature;
+      }
+    }
+    ready() {
+      super.ready();
+      this._mutationObserver = new MutationObserver(this.registerContainerOnChildren.bind(this));
+      this._mutationObserver.observe(this, {childList: true});
+    }
+    detached() {
+      if (this.container && this.feature) {
+        this.container.removeLayer(this.feature);
+      }
+      this._mutationObserver.disconnect();
+    }
+  }
+	window.customElements.define(LeafletMarkerCluster.is, LeafletMarkerCluster);
+</script>
+
+

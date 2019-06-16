@@ -1,0 +1,89 @@
+<link rel="import" href="leaflet-core.html">
+
+<!--
+Marker clustering (<a href="https://github.com/Leaflet/Leaflet.markercluster/tree/leaflet-0.7">Reference</a>).
+
+##### Example
+
+    <leaflet-heatmap>
+        <leaflet-marker latitude="51.505" longitude="-0.09"> </leaflet-marker>
+    </leaflet-heatmapp>
+
+
+@element leaflet-heatmap
+@blurb an element which represents a marker cluster group
+@demo https://leaflet-extras.github.io/leaflet-map/demo.html
+@homepage https://leaflet-extras.github.io/leaflet-map/
+-->
+
+<dom-module id="leaflet-heatmap">
+  <template>
+    <slot></slot>
+  </template>
+</dom-module>
+
+<script>
+  "use strict";
+    class LeafletHeatmap extends Polymer.Element {
+		static get is() {return 'leaflet-heatmap';}
+		static get properties() {
+			return {
+        container: {
+        type: Object,
+        observer: '_containerChanged'
+      },
+      items: {
+        type: Array,
+        value: function() {
+          return [];
+        },
+        observer:  '_containerChanged'
+
+        }
+      }
+    }
+
+    ready() {
+      super.ready();
+      this._mutationObserver = new MutationObserver(this.registerContainerOnChildren.bind(this));
+      this._mutationObserver.observe(this, {childList: true});
+    }
+
+    _containerChanged() {
+      if (this.container) {
+       
+        if(this.feature){
+          this.container.removeLayer(this.feature)
+        }
+        var feature = L.heatLayer(this.items,
+          { radius: 30,  blur: 15, minOpacity:0.2,
+            gradient: {
+                    0.0: 'blue',
+                    0.5: 'green',
+                    1.0: 'red'
+                }, });
+        console.log(this.items)
+        this.feature = feature
+
+        this.registerContainerOnChildren();
+        this.feature.addTo(this.container);
+      }
+    }
+
+    registerContainerOnChildren() {
+      for (var i = 0; i < this.children.length; i++) {
+        this.children[i].container = this.feature;
+      }
+    }
+    
+    detached() {
+      if (this.container && this.feature) {
+        this.container.removeLayer(this.feature);
+      }
+      this._mutationObserver.disconnect();
+    }
+  }
+	window.customElements.define(LeafletHeatmap.is, LeafletHeatmap);
+</script>
+
+

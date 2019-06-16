@@ -1,0 +1,33 @@
+{
+  "name": "leaflet-map",
+  "version": "0.2.0",
+  "authors": [
+    "Luca Bognetti <luca.bognetti@gmail.com>"
+  ],
+  "description": "Leaflet map as web-component based on polymer 2",
+  "main": "leaflet-map.html",
+  "homepage": "https://leaflet-extras.github.io/leaflet-map/",
+  "keywords": [
+    "polymer",
+    "web-components",
+    "leaflet",
+    "leafletjs",
+    "map"
+  ],
+  "license": "BSD 2-Clause",
+  "ignore": [
+    "**/.*",
+    "demo.html",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^2.0.0",
+    "leaflet": "^0.7.7",
+    "leaflet.heat": "0.2.0",
+    "leaflet.draw": "0.4.2",
+    "leaflet.markercluster": "0.5.0"
+  }
+}
